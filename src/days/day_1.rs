@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
+use log::{debug, info};
 
 pub fn part_1() {
     let (column1, column2) = load_input();
@@ -19,11 +20,11 @@ pub fn part_1() {
     while !heap1.is_empty() {
         let val1 = heap1.pop().unwrap();
         let val2 = heap2.pop().unwrap();
-        println!("{} - {}", val1.0, val2.0); // Reverse() has the worst notation ever
+        debug!("{} - {}", val1.0, val2.0); // Reverse() has the worst notation ever
         differences.push((val1.0 - val2.0).abs());
     }
     let sum = differences.iter().sum::<i32>();
-    println!("Part 1 - Sum: {}", sum);
+    info!("Part 1 - Sum: {}", sum);
 }
 
 pub fn part_2() {
@@ -43,7 +44,7 @@ pub fn part_2() {
         };
         result += val * multiplier;
     });
-    println!("Part 2: {}", result)
+    info!("Part 2: {}", result)
 }
 
 fn load_input() -> (Vec<i32>, Vec<i32>) {

@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
+use log::{debug, info};
 use crate::days::day_2::SafetyTriggerResult::{Continue, EndOfLine, Terminate};
 
 const ALLOWABLE_DIFFERENCE: i32 = 3;
@@ -20,7 +21,7 @@ pub fn part_1() {
             checkIfValid(report)
         })
         .count();
-    println!("Part 1: {}", valid_report_count);
+    info!("Part 1: {}", valid_report_count);
 }
 
 pub fn part_2() {
@@ -34,7 +35,7 @@ pub fn part_2() {
             return forwardResult || reverseResult;
         })
         .count();
-    println!("Part 2 {}", valid_report_count);
+    info!("Part 2 {}", valid_report_count);
 }
 
 fn checkIfValid(report: &Vec<i32>) -> bool {
@@ -66,7 +67,7 @@ fn checkIfValid(report: &Vec<i32>) -> bool {
 }
 
 fn checkIfValidWithSafety(originalReport: &Vec<i32>) -> bool {
-    println!("Original Report: {:?}", originalReport);
+    debug!("Original Report: {:?}", originalReport);
     let mut report = originalReport.clone();
     let mut head = 0;
     let mut tail = 1;
@@ -78,7 +79,7 @@ fn checkIfValidWithSafety(originalReport: &Vec<i32>) -> bool {
 
     let is_ascending = head_value < tail_value;
     loop {
-        println!("Head: {} - Tail: {}", head_value, tail_value);
+        debug!("Head: {} - Tail: {}", head_value, tail_value);
         if is_ascending != (head_value < tail_value) {
             match handle_safety_trigger(&mut safety_triggered, &mut report, &tail, &mut tail_value) {
                 Terminate => return false,
@@ -107,10 +108,10 @@ fn checkIfValidWithSafety(originalReport: &Vec<i32>) -> bool {
 
 fn handle_safety_trigger(safety_triggered: &mut bool, report: &mut Vec<i32>, tail: &usize, tailValue: &mut i32) -> SafetyTriggerResult {
     if (*safety_triggered) {
-        println!("Safety Triggered - termination");
+        debug!("Safety Triggered - termination");
         Terminate
     } else {
-        println!("Safety Triggered");
+        debug!("Safety Triggered");
         *safety_triggered = true;
         report.remove(*tail);
         *tailValue = match report.get(*tail) {
