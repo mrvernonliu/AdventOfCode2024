@@ -28,8 +28,8 @@ pub fn part_2() {
     let valid_report_count = list_of_reports
         .iter()
         .filter(|report| {
-            let forwardResult = checkIfValidWithSafety(report);
-            let reverseResult  = checkIfValidWithSafety(&report.iter().rev().cloned().collect());
+            let forwardResult = checkIfValidWithSafety(&report.iter().rev().cloned().collect());
+            let reverseResult  = checkIfValidWithSafety(report);
 
             return forwardResult || reverseResult;
         })
