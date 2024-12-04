@@ -14,4 +14,8 @@ fn main() {
     info!("Day 2:");
     days::day_2::part_1();
     days::day_2::part_2();
+
+    info!("Day 3:");
+    days::day_3::part_1();
+    days::day_3::part_2();
 }
