@@ -18,7 +18,7 @@ pub fn part_1() {
     let valid_report_count = list_of_reports
         .iter()
         .filter(|report| {
-            checkIfValid(report)
+            check_if_valid(report)
         })
         .count();
     info!("Part 1: {}", valid_report_count);
@@ -29,36 +29,36 @@ pub fn part_2() {
     let valid_report_count = list_of_reports
         .iter()
         .filter(|report| {
-            let forwardResult = checkIfValidWithSafety(&report.iter().rev().cloned().collect());
-            let reverseResult  = checkIfValidWithSafety(report);
+            let forward_result = check_if_valid_with_safety(&report.iter().rev().cloned().collect());
+            let reverse_result = check_if_valid_with_safety(report);
 
-            return forwardResult || reverseResult;
+            return forward_result || reverse_result;
         })
         .count();
     info!("Part 2 {}", valid_report_count);
 }
 
-fn checkIfValid(report: &Vec<i32>) -> bool {
+fn check_if_valid(report: &Vec<i32>) -> bool {
     let mut head = 0;
     let mut tail = 1;
 
     // Unwrap because problem states that there will always be at least 2 numbers
-    let mut headValue = report.get(head).unwrap();
-    let mut tailValue = report.get(tail).unwrap();
+    let mut head_value = report.get(head).unwrap();
+    let mut tail_value = report.get(tail).unwrap();
 
-    let isAscending = headValue < tailValue;
+    let is_ascending = head_value < tail_value;
     loop {
-        if isAscending != (headValue < tailValue) {
+        if is_ascending != (head_value < tail_value) {
             return false;
         }
-        let delta = (headValue - tailValue).abs();
+        let delta = (head_value - tail_value).abs();
         if delta > ALLOWABLE_DIFFERENCE || delta == 0 {
             return false;
         }
         head += 1;
         tail += 1;
-        headValue = report.get(head).unwrap();
-        tailValue = match report.get(tail) {
+        head_value = report.get(head).unwrap();
+        tail_value = match report.get(tail) {
             Some(value) => value,
             None => { break; }
         };
@@ -66,9 +66,9 @@ fn checkIfValid(report: &Vec<i32>) -> bool {
     true
 }
 
-fn checkIfValidWithSafety(originalReport: &Vec<i32>) -> bool {
-    debug!("Original Report: {:?}", originalReport);
-    let mut report = originalReport.clone();
+fn check_if_valid_with_safety(original_report: &Vec<i32>) -> bool {
+    debug!("Original Report: {:?}", original_report);
+    let mut report = original_report.clone();
     let mut head = 0;
     let mut tail = 1;
 
@@ -106,15 +106,15 @@ fn checkIfValidWithSafety(originalReport: &Vec<i32>) -> bool {
     true
 }
 
-fn handle_safety_trigger(safety_triggered: &mut bool, report: &mut Vec<i32>, tail: &usize, tailValue: &mut i32) -> SafetyTriggerResult {
-    if (*safety_triggered) {
+fn handle_safety_trigger(safety_triggered: &mut bool, report: &mut Vec<i32>, tail: &usize, tail_value: &mut i32) -> SafetyTriggerResult {
+    if *safety_triggered {
         debug!("Safety Triggered - termination");
         Terminate
     } else {
         debug!("Safety Triggered");
         *safety_triggered = true;
         report.remove(*tail);
-        *tailValue = match report.get(*tail) {
+        *tail_value = match report.get(*tail) {
             Some(value) => *value,
             None => return EndOfLine
         };
