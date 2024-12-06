@@ -9,22 +9,22 @@ enum COMPASS {
 #[derive(Debug, Eq, PartialEq, Hash)]
 struct Direction {
     x: i32,
-    y: i32,
-    name: COMPASS
+    y: i32
 }
 
 impl Direction {
     fn apply_movement(&self, x: i32, y: i32) -> (i32, i32) {
         ((x + self.x), (y + self.y))
     }
-    const NORTH: Self = Self { x: 0, y: 1, name: COMPASS::N };
-    const SOUTH: Self = Self { x: 0, y: -1, name: COMPASS::S};
-    const WEST: Self = Self { x: -1, y: 0, name: COMPASS::W };
-    const EAST: Self = Self { x: 1, y: 0, name: COMPASS::E };
-    const NORTH_EAST: Self = Self { x: 1, y: 1, name: COMPASS::NE };
-    const NORTH_WEST: Self = Self { x: -1, y: 1, name: COMPASS::NW };
-    const SOUTH_EAST: Self = Self { x: 1, y: -1, name: COMPASS::SE };
-    const SOUTH_WEST: Self = Self { x: -1, y: -1, name: COMPASS::SW };
+    const NORTH: Self = Self { x: 0, y: 1 };
+    const SOUTH: Self = Self { x: 0, y: -1 };
+    const WEST: Self = Self { x: -1, y: 0 };
+    const EAST: Self = Self { x: 1, y: 0 };
+
+    const NORTH_EAST: Self = Self { x: 1, y: 1 };
+    const NORTH_WEST: Self = Self { x: -1, y: 1 };
+    const SOUTH_EAST: Self = Self { x: 1, y: -1 };
+    const SOUTH_WEST: Self = Self { x: -1, y: -1 };
 
     const ALL_DIRECTIONS: [Direction; 8] = [
         Direction::NORTH,
@@ -36,25 +36,9 @@ impl Direction {
         Direction::SOUTH_EAST,
         Direction::SOUTH_WEST,
     ];
-
-    fn get_cross_directional_map() -> HashMap<COMPASS, Vec<Direction>> {
-        let mut map = HashMap::new();
-        map.insert(COMPASS::N, vec![Direction::NORTH_EAST, Direction::NORTH_WEST]);
-        map.insert(COMPASS::S, vec![Direction::SOUTH_EAST, Direction::SOUTH_WEST]);
-        map.insert(COMPASS::W, vec![Direction::NORTH_WEST, Direction::SOUTH_WEST]);
-        map.insert(COMPASS::E, vec![Direction::NORTH_EAST, Direction::SOUTH_EAST]);
-        map
-    }
 }
 
 const XMAS: [char; 4] = ['X', 'M', 'A', 'S'];
-
-#[derive(Eq, PartialEq)]
-enum RotationalSearchState {
-    MMatch,
-    SMatch,
-    NoMatch
-}
 
 pub fn part_1() {
     let grid = load_input();
@@ -71,12 +55,11 @@ pub fn part_1() {
 
 pub fn part_2() {
     let grid = load_input();
-    let cross_directional_map = Direction::get_cross_directional_map();
     let mut christmas_count = 0;
     for (y, row) in grid.iter().enumerate() {
         for (x, c) in row.iter().enumerate() {
             if c == &'A' {
-                christmas_count += search_for_real_xmas(&grid, x as i32, y as i32, &cross_directional_map);
+                christmas_count += search_for_real_xmas(&grid, x as i32, y as i32);
             }
         }
     }
@@ -108,54 +91,42 @@ fn directional_dfs(grid: &Vec<Vec<char>>, current_letter_index: usize, direction
     }
 }
 
-fn search_for_real_xmas(grid: &Vec<Vec<char>>, x: i32, y: i32, cross_directional_map: &HashMap<COMPASS, Vec<Direction>>) -> i32{
-    let mut count = 0;
-    let mut result_map: HashMap<&COMPASS, RotationalSearchState> = HashMap::new();
-    for (direction_name, search_locations) in cross_directional_map {
-        result_map.insert(direction_name, search_direction(grid, x, y, &search_locations));
-    }
+fn search_for_real_xmas(grid: &Vec<Vec<char>>, x: i32, y: i32) -> i32{
+    let nw = Direction::NORTH_WEST.apply_movement(x, y);
+    let ne = Direction::NORTH_EAST.apply_movement(x, y);
+    let sw = Direction::SOUTH_WEST.apply_movement(x, y);
+    let se = Direction::SOUTH_EAST.apply_movement(x, y);
 
-    count +=  check_and_count_direction(&result_map, &COMPASS::N, &COMPASS::S);
-    count += check_and_count_direction(&result_map, &COMPASS::E, &COMPASS::W);
-    count
-}
-
-fn search_direction(grid: &Vec<Vec<char>>, x: i32, y: i32, search_locations: &Vec<Direction>) -> RotationalSearchState {
-    let (new_x1, new_y1) = search_locations.get(0).unwrap().apply_movement(x, y);
-    let (new_x2, new_y2) = search_locations.get(1).unwrap().apply_movement(x, y);
-
-    if new_y1 < 0 || new_y1 > grid.len() as i32 -1 || new_x1 < 0 || new_x1 > grid.get(0).unwrap().len() as i32 -1 {
-        return RotationalSearchState::NoMatch
-    }
-    if new_y2 < 0 || new_y2 > grid.len() as i32 -1 || new_x2 < 0 || new_x2 > grid.get(0).unwrap().len() as i32 -1 {
-        return RotationalSearchState::NoMatch
-    }
-
-    if grid[new_y1 as usize][new_x1 as usize] == grid[new_y2 as usize][new_x2 as usize] {
-        match grid[new_y1 as usize][new_x1 as usize] {
-            'M' => RotationalSearchState::MMatch,
-            'S' => RotationalSearchState::SMatch,
-            _ => RotationalSearchState::NoMatch
-        }
-    } else {
-        RotationalSearchState::NoMatch
-    }
-}
-
-fn check_and_count_direction(rotational_search_map: &HashMap<&COMPASS, RotationalSearchState>, dir1: &COMPASS, dir2: &COMPASS) -> i32 {
-    if rotational_search_map.get(dir1).unwrap() != &RotationalSearchState::NoMatch
-        && rotational_search_map.get(dir2).unwrap() != &RotationalSearchState::NoMatch {
-        if rotational_search_map.get(dir1).unwrap() != rotational_search_map.get(dir2).unwrap() {
-            1
-        } else {
-            0
-        }
-    } else {
+    if !check_bounds(&grid, vec![&nw, &ne, &sw, &se]) {
         0
+    } else if !check_cross_is_m_and_s(&grid, &nw, &se) {
+        0
+    } else if !check_cross_is_m_and_s(&grid, &ne, &sw) {
+        0
+    } else {
+        1
     }
 }
 
+fn check_cross_is_m_and_s(grid:  &Vec<Vec<char>>, coordinate_1: &(i32, i32), coordinate_2: &(i32, i32)) -> bool {
+    let coordinate_1_val = match grid[coordinate_1.1 as usize][coordinate_1.0 as usize] {
+        'M' => 'M',
+        'S' => 'S',
+        _ => return false
+    };
+    let coordinate_2_val = match grid[coordinate_2.1 as usize][coordinate_2.0 as usize] {
+        'M' => 'M',
+        'S' => 'S',
+        _ => return false
+    };
+    coordinate_1_val != coordinate_2_val
+}
 
+fn check_bounds(grid: &Vec<Vec<char>>, coordinates: Vec<&(i32, i32)>) -> bool {
+    coordinates.iter().all(|(x, y)| {
+        *x >= 0 && *x < grid[0].len() as i32 && *y >= 0 && *y < grid.len() as i32
+    })
+}
 
 fn load_input() -> Vec<Vec<char>> {
     let input = match fs::read_to_string("./resources/day4.txt") {
