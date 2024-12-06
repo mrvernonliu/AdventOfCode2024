@@ -1,11 +1,6 @@
-use std::collections::HashMap;
 use std::fs;
 use log::info;
 
-#[derive(Debug, Eq, PartialEq, Hash)]
-enum COMPASS {
-    N, E, W, S, NE, NW, SE, SW
-}
 #[derive(Debug, Eq, PartialEq, Hash)]
 struct Direction {
     x: i32,
