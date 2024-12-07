@@ -1,37 +1,6 @@
 use std::fs;
 use log::info;
-
-#[derive(Debug, Eq, PartialEq, Hash)]
-struct Direction {
-    x: i32,
-    y: i32
-}
-
-impl Direction {
-    fn apply_movement(&self, x: i32, y: i32) -> (i32, i32) {
-        ((x + self.x), (y + self.y))
-    }
-    const NORTH: Self = Self { x: 0, y: 1 };
-    const SOUTH: Self = Self { x: 0, y: -1 };
-    const WEST: Self = Self { x: -1, y: 0 };
-    const EAST: Self = Self { x: 1, y: 0 };
-
-    const NORTH_EAST: Self = Self { x: 1, y: 1 };
-    const NORTH_WEST: Self = Self { x: -1, y: 1 };
-    const SOUTH_EAST: Self = Self { x: 1, y: -1 };
-    const SOUTH_WEST: Self = Self { x: -1, y: -1 };
-
-    const ALL_DIRECTIONS: [Direction; 8] = [
-        Direction::NORTH,
-        Direction::SOUTH,
-        Direction::WEST,
-        Direction::EAST,
-        Direction::NORTH_EAST,
-        Direction::NORTH_WEST,
-        Direction::SOUTH_EAST,
-        Direction::SOUTH_WEST,
-    ];
-}
+use crate::utils::direction::Direction;
 
 const XMAS: [char; 4] = ['X', 'M', 'A', 'S'];
 
