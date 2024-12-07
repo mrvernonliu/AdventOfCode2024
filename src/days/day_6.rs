@@ -1,5 +1,5 @@
 use std::fs;
-use log::info;
+use log::{debug, info};
 use crate::utils::direction::Direction;
 use crate::utils::location::Position;
 
@@ -32,15 +32,71 @@ impl Character {
             _ => panic!("Invalid direction")
         }
     }
+
+    fn rotate_clockwise(&mut self) {
+        self.direction = match self.direction {
+            Direction::NORTH => Direction::EAST,
+            Direction::EAST => Direction::SOUTH,
+            Direction::SOUTH => Direction::WEST,
+            Direction::WEST => Direction::NORTH,
+            _ => panic!("Non-supported direction detected")
+        }
+    }
+
+    fn get_next_position(&self, grid: &Vec<Vec<char>>) -> Option<(usize, usize)> {
+        let (next_x, next_y) = self.direction.apply_movement(self.position.x as i32, self.position.y as i32);
+        if next_x < 0 || next_y < 0 {
+            return None
+        }
+        if next_x >= grid[0].len() as i32 || next_y >= grid.len() as i32 {
+            return None
+        }
+        Some((next_x as usize, next_y as usize))
+    }
 }
 
 const EMPTY_SHAPE: char = '.';
 const VISITED_SHAPE: char = 'o';
+const BLOCKING_SHAPE: char = '#';
 
 pub fn part_1() {
-    let (grid, character) = load_input();
-    info!("{}", grid_to_string(&grid, &character));
-    info!("Player Location: {:?}", character.position);
+    let (mut grid, mut character) = load_input();
+
+    let mut count = 0;
+    loop {
+        debug!("{}", grid_to_string(&grid, &character));
+        info!("Player Location: {:?}", character.position);
+
+        if grid[character.position.y][character.position.x] == EMPTY_SHAPE {
+            count += 1;
+        }
+        grid[character.position.y][character.position.x] = VISITED_SHAPE;
+
+        let (x, y) = match character.get_next_position(&grid) {
+            None => break,
+            Some((x,y)) => (x,y)
+        };
+        match grid[y][x] {
+            BLOCKING_SHAPE => {
+                character.rotate_clockwise();
+                continue
+            }
+            EMPTY_SHAPE | VISITED_SHAPE => {
+                character.position.x = x;
+                character.position.y = y;
+            }
+            _ => panic!("Unknown shape detected")
+        }
+    }
+    info!("Part 1: {}", count);
+}
+
+pub fn part_2() {
+    // Attempt to place a blocker at each position in the valid path.
+    // Use a 2 pointer solution with the tail moving slower. If the head ever == tail
+    // then we have a loop.
+
+    // This is potentially very slow, but not sure if there is a better way
 }
 
 fn grid_to_string(grid: &Vec<Vec<char>>, character: &Character) -> String {
@@ -65,7 +121,7 @@ fn load_input() -> (Vec<Vec<char>>, Character) {
     let mut starting_location: Option<Position> = None;
     let mut starting_shape: Option<char> = None;
 
-    let grid: Vec<Vec<char>> = match fs::read_to_string("./resources/day6_test.txt") {
+    let grid: Vec<Vec<char>> = match fs::read_to_string("./resources/day6.txt") {
         Err(_) => panic!("Could not load file"),
         Ok(input) =>{
             input
