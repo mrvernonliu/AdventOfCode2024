@@ -39,21 +39,26 @@ const VISITED_SHAPE: char = 'o';
 
 pub fn part_1() {
     let (grid, character) = load_input();
-    print_grid(&grid, &character);
+    info!("{}", grid_to_string(&grid, &character));
     info!("Player Location: {:?}", character.position);
 }
 
-fn print_grid(grid: &Vec<Vec<char>>, character: &Character) {
+fn grid_to_string(grid: &Vec<Vec<char>>, character: &Character) -> String {
+    let mut result = String::new();
     for (y, row) in grid.iter().enumerate() {
+        let mut line = String::new();
         for (x, &element) in row.iter().enumerate() {
             if y == character.position.y && x == character.position.x {
-                print!("{}", character.get_shape());
-                continue;
+                line.push(character.get_shape());
+            } else {
+                line.push(element);
             }
-            print!("{}", element);
         }
-        println!();
+        result.push('\n');
+        result.push_str(&line);
+        result.push('\n');
     }
+    result
 }
 
 fn load_input() -> (Vec<Vec<char>>, Character) {
