@@ -38,6 +38,7 @@ fn main() {
             6 => {
                 info!("Day 6:");
                 days::day_6::part_1();
+                days::day_6::part_2();
             }
             _ => {}
         }

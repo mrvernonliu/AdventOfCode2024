@@ -1,9 +1,11 @@
+use std::collections::HashSet;
 use std::fs;
 use log::{debug, info};
 use crate::utils::direction::Direction;
-use crate::utils::location::Position;
+use crate::utils::position::Position;
 
 const CHARACTER_SHAPES: [char; 4] = ['v', '^', '<', '>'];
+#[derive(Copy, Clone)]
 struct Character {
     direction: Direction,
     position: Position,
@@ -65,7 +67,7 @@ pub fn part_1() {
     let mut count = 0;
     loop {
         debug!("{}", grid_to_string(&grid, &character));
-        info!("Player Location: {:?}", character.position);
+        debug!("Player Location: {:?}", character.position);
 
         if grid[character.position.y][character.position.x] == EMPTY_SHAPE {
             count += 1;
@@ -93,10 +95,89 @@ pub fn part_1() {
 
 pub fn part_2() {
     // Attempt to place a blocker at each position in the valid path.
-    // Use a 2 pointer solution with the tail moving slower. If the head ever == tail
-    // then we have a loop.
+    // Use a 2 pointer solution with a slower tail.
+    // If head == tail at some point then a loop was detected
 
     // This is potentially very slow, but not sure if there is a better way
+
+    let (mut grid, mut character) = load_input();
+    let mut valid_blockers: HashSet<(usize, usize)> = HashSet::new();
+    loop {
+        debug!("{}", grid_to_string(&grid, &character));
+        grid[character.position.y][character.position.x] = VISITED_SHAPE;
+
+        let (x, y) = match character.get_next_position(&grid) {
+            None => break,
+            Some((x,y)) => (x,y)
+        };
+
+        if grid[y][x] != BLOCKING_SHAPE && grid[y][x] != VISITED_SHAPE {
+            let original_shape = grid[y][x];
+            grid[y][x] = BLOCKING_SHAPE;
+            if has_loop(&grid, character.clone()) {
+                debug!("Blocker at x:{}, y:{} creates a loop", x, y);
+                valid_blockers.insert((x, y));
+            }
+            grid[y][x] = original_shape
+        }
+
+
+        match grid[y][x] {
+            BLOCKING_SHAPE => {
+                character.rotate_clockwise();
+                continue
+            }
+            EMPTY_SHAPE | VISITED_SHAPE => {
+                character.position.x = x;
+                character.position.y = y;
+            }
+            _ => panic!("Unknown shape detected")
+        }
+    }
+    info!("Part 2: {}", valid_blockers.len());
+}
+
+fn has_loop(grid: &Vec<Vec<char>>, mut character: Character) -> bool {
+    let mut index = 0;
+    let mut tail = character.clone();
+    loop {
+        let (x_1, y_1) = match handle_character_movement(&grid, &mut character) {
+            None => return false,
+            Some((x, y)) => (x,y)
+        };
+        character.position.x = x_1;
+        character.position.y = y_1;
+
+        if index % 2 == 1 {
+            let (x_2, y_2) = match handle_character_movement(&grid, &mut tail) {
+                None => return false,
+                Some((x, y)) => (x,y)
+            };
+            tail.position.x = x_2;
+            tail.position.y = y_2;
+            if tail.position == character.position && tail.direction == character.direction {
+                return true;
+            }
+        }
+        index += 1;
+    }
+}
+
+fn handle_character_movement(grid: &Vec<Vec<char>>, character: &mut Character) -> Option<(usize, usize)> {
+    let (x, y) = match character.get_next_position(&grid) {
+        None => return None,
+        Some((x,y)) => (x,y)
+    };
+    match grid[y][x] {
+        BLOCKING_SHAPE => {
+            character.rotate_clockwise();
+            Some((character.position.x, character.position.y))
+        }
+        EMPTY_SHAPE | VISITED_SHAPE => {
+            Some((x, y))
+        }
+        _ => panic!("Unknown shape detected")
+    }
 }
 
 fn grid_to_string(grid: &Vec<Vec<char>>, character: &Character) -> String {

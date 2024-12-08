@@ -1,4 +1,4 @@
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub struct Direction {
     x: i32,
     y: i32

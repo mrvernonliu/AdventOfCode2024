@@ -1,2 +1,2 @@
 pub mod direction;
-pub mod location;
+pub mod position;
