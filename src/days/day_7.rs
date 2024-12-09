@@ -5,11 +5,11 @@ pub fn part_1() {
     // Use a recursive tree to check operations (+ or *), terminate immediately if > target
     let input = load_input();
     debug!("Input: {:?}", input);
-    let valid_count: i64 = input.iter().map(|(target, terms)| {
-        if calculate_recursively(*target, terms[0], &terms, 1) {
-            return target
+    let valid_count: i64 = input.iter().filter_map(|(target, terms)| {
+        match calculate_recursively(*target, terms[0], &terms, 1) {
+            true => Some(target),
+            false => None
         }
-        &0
     }).sum();
     info!("Part 1: {}", valid_count);
 }
@@ -18,11 +18,11 @@ pub fn part_2() {
     // Use a recursive tree to check operations (+ or * or ||), terminate immediately if > target
     let input = load_input();
     debug!("Input: {:?}", input);
-    let valid_count: i64 = input.iter().map(|(target, terms)| {
-        if calculate_recursively_with_concat_operation(*target, terms[0], &terms, 1) {
-            return target
+    let valid_count: i64 = input.iter().filter_map(|(target, terms)| {
+        match calculate_recursively_with_concat_operation(*target, terms[0], &terms, 1) {
+            true => Some(target),
+            false => None
         }
-        &0
     }).sum();
     info!("Part 2: {}", valid_count);
 }
