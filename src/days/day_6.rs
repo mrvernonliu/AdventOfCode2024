@@ -8,10 +8,10 @@ const CHARACTER_SHAPES: [char; 4] = ['v', '^', '<', '>'];
 #[derive(Copy, Clone)]
 struct Character {
     direction: Direction,
-    position: Position,
+    position: Position<usize>,
 }
 impl Character {
-    fn new (starting_position: Position, shape: char) -> Self {
+    fn new (starting_position: Position<usize>, shape: char) -> Self {
         let direction = match shape {
             'v' => Direction::SOUTH,
             '^' => Direction::NORTH,
@@ -199,7 +199,7 @@ fn grid_to_string(grid: &Vec<Vec<char>>, character: &Character) -> String {
 }
 
 fn load_input() -> (Vec<Vec<char>>, Character) {
-    let mut starting_location: Option<Position> = None;
+    let mut starting_location: Option<Position<usize>> = None;
     let mut starting_shape: Option<char> = None;
 
     let grid: Vec<Vec<char>> = match fs::read_to_string("./resources/day6.txt") {

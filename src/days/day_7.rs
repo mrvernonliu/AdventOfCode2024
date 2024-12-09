@@ -1,5 +1,4 @@
 use std::fs;
-use std::ptr::copy;
 use log::{debug, info};
 
 pub fn part_1() {
