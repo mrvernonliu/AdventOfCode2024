@@ -28,32 +28,30 @@ pub fn part_2() {
 }
 
 fn calculate_recursively(target: i64, current_value: i64, terms: &Vec<i64>, index: usize) -> bool {
-    if current_value > target {
+    if current_value == target && index == terms.len() {
+        return true
+    }
+    if current_value > target || index >= terms.len() {
         return false
     }
-    if index == terms.len()-1 { // Base case
-        current_value + terms[index] == target || current_value * terms[index] == target
-    } else {
-        let addition_case = calculate_recursively(target, current_value + terms[index], terms, index + 1);
-        let multiplication_case = calculate_recursively(target, current_value * terms[index], terms, index + 1);
-        addition_case || multiplication_case
-    }
+    let addition_case = calculate_recursively(target, current_value + terms[index], terms, index + 1);
+    let multiplication_case = calculate_recursively(target, current_value * terms[index], terms, index + 1);
+    addition_case || multiplication_case
+
 }
 
 fn calculate_recursively_with_concat_operation(target: i64, current_value: i64, terms: &Vec<i64>, index: usize) -> bool {
-    if current_value > target {
+    if current_value == target && index == terms.len() {
+        return true
+    }
+    if current_value > target || index >= terms.len() {
         return false
     }
-    if index == terms.len()-1 { // Base case
-        current_value + terms[index] == target
-            || current_value * terms[index] == target
-            || concat(current_value, terms[index]) == target
-    } else {
-        let addition_case = calculate_recursively_with_concat_operation(target, current_value + terms[index], terms, index + 1);
-        let multiplication_case = calculate_recursively_with_concat_operation(target, current_value * terms[index], terms, index + 1);
-        let concat_case = calculate_recursively_with_concat_operation(target, concat(current_value, terms[index]), terms, index + 1);
-        addition_case || multiplication_case || concat_case
-    }
+
+    let addition_case = calculate_recursively_with_concat_operation(target, current_value + terms[index], terms, index + 1);
+    let multiplication_case = calculate_recursively_with_concat_operation(target, current_value * terms[index], terms, index + 1);
+    let concat_case = calculate_recursively_with_concat_operation(target, concat(current_value, terms[index]), terms, index + 1);
+    addition_case || multiplication_case || concat_case
 }
 
 // To concat: append the number of digits in y to x
