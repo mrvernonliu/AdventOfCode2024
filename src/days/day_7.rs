@@ -34,10 +34,10 @@ fn calculate_recursively(target: i64, current_value: i64, terms: &Vec<i64>, inde
     if current_value > target || index >= terms.len() {
         return false
     }
+
     let addition_case = calculate_recursively(target, current_value + terms[index], terms, index + 1);
     let multiplication_case = calculate_recursively(target, current_value * terms[index], terms, index + 1);
     addition_case || multiplication_case
-
 }
 
 fn calculate_recursively_with_concat_operation(target: i64, current_value: i64, terms: &Vec<i64>, index: usize) -> bool {
