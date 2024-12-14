@@ -55,6 +55,11 @@ fn main() {
                 days::day_9::part_1();
                 days::day_9::part_2();
             }
+            10 => {
+                info!("Day 10:");
+                days::day_10::part_1();
+                days::day_10::part_2();
+            }
             _ => {}
         }
     }
