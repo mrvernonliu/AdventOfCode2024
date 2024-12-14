@@ -1,14 +1,15 @@
-use std::collections::VecDeque;
+use std::collections::{VecDeque};
 use std::fs;
+use std::ops::Add;
 use log::{debug, info};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum BlockType {
     FileBlock,
     EmptyBlock
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct Block {
     block_type: BlockType,
     id: i32,
@@ -101,10 +102,108 @@ pub fn part_1() {
         hash += index as u64 * *id as u64;
     }
     info!("Part 1: {}", hash);
-
 }
 
-fn repeat_char(key: i32, length: i32) -> String {
+/*
+    This is... terrible, don't look at it.
+ */
+pub fn part_2() {
+    let input = fs::read_to_string("./resources/day9.txt")
+        .expect("Failed to load file");
+    debug!("Input: {}", input);
+    let mut block_list: Vec<Block> = Vec::new();
+    let mut file_index = 0;
+    for (index, c) in input.chars().enumerate() {
+        if index % 2 == 0 {
+            block_list.push(Block::new(
+                BlockType::FileBlock,
+                file_index,
+                c.to_digit(10).expect("char was not a number") as i32));
+            file_index += 1;
+        } else {
+            block_list.push(Block::new(
+                BlockType::EmptyBlock,
+                file_index, // Add index so that we know if we can insert a file here
+                c.to_digit(10).expect("char was not a number") as i32));
+        }
+    }
+    debug!("Original Block list: {:?}", block_list);
+
+    let mut end_index = block_list.len();
+    while end_index > 0 {
+        end_index -= 1;
+        debug!("{}", get_block_string(&block_list));
+        if block_list.get(end_index).is_some() {
+            if block_list.get(end_index).unwrap().block_type == BlockType::EmptyBlock {
+                continue
+            }
+        } else {
+            break;
+        }
+        debug!("End index: {}", end_index);
+
+        for i in 0..block_list.len(){
+            let block = &block_list[i];
+            let curr_end_file = &block_list[end_index];
+            if block.block_type == BlockType::FileBlock {
+                continue
+            }
+            debug!("Comparing: {:?} to {:?}", block, curr_end_file);
+            if block.length >= curr_end_file.length && i < end_index {
+                debug!("Moving {}", curr_end_file.id);
+                if block.length == curr_end_file.length {
+                    block_list.swap(i, end_index);
+                } else {
+                    let newEmptyBlock = Block{
+                        block_type: BlockType::EmptyBlock,
+                        id: block_list[i].id,
+                        length: curr_end_file.length,
+                    };
+                    block_list[i].length = block_list[i].length - curr_end_file.length;
+                    block_list.insert(i, newEmptyBlock);
+                    block_list.swap(i, end_index+1);
+                }
+                break;
+            }
+        }
+    }
+
+    let mut hash: u64 = 0;
+    let mut index = 0;
+    for block in &block_list {
+        if block.block_type == BlockType::EmptyBlock {
+            index += block.length;
+        } else {
+            for i in index..(block.length+index) {
+                hash += block.id as u64 * i as u64;
+            }
+            index += block.length;
+        }
+    }
+
+    info!("Part 2: {}", hash);
+}
+
+fn get_block_string(block_list: & Vec<Block>) -> String {
+    let mut index = 0;
+    let mut print_string = String::new();
+    for block in block_list {
+        if block.block_type == BlockType::EmptyBlock {
+            for _ in index..(block.length + index) {
+                print_string.push_str(".");
+            }
+            index += block.length;
+        } else {
+            for _ in index..(block.length + index) {
+                print_string.push_str(&format!("{}", block.id));
+            }
+            index += block.length;
+        }
+    }
+    print_string
+}
+
+fn repeat_char(key: String, length: i32) -> String {
     let id_string = &format!("{}", key);
     std::iter::repeat(id_string.clone()).take(length as usize).collect()
 }
