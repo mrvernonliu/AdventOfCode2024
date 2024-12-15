@@ -4,6 +4,14 @@ use std::ops::Add;
 use log::{debug, info};
 use crate::utils::direction::Direction;
 
+
+const DIRECTIONS: [(i32, i32, Direction); 4] = [
+    (1, 0, Direction::EAST),
+    (-1, 0, Direction::WEST),
+    (0, 1, Direction::SOUTH),
+    (0, -1, Direction::NORTH),
+];
+
 #[derive(Debug)]
 struct Field {
     area: i32,
@@ -34,6 +42,7 @@ impl Add for Field {
         }
     }
 }
+
 pub fn part_1() {
     let grid = load_input();
     debug!("Starting grid: {:?}", grid);
@@ -114,20 +123,6 @@ pub fn part_2() {
     info!("Part 1: {}", price);
 }
 
-fn calculate_num_sides(face_map: HashMap<Face, Vec<i32>>) -> i32 {
-    let mut num_sides = 0;
-    for (_, mut positions) in face_map {
-        positions.sort();
-        for i in 1..positions.len() {
-            if positions[i] - positions[i-1] != 1 {
-                num_sides += 1;
-            }
-        }
-        num_sides += 1;
-    }
-    num_sides
-}
-
 fn area_and_perimeter_face_dfs(grid: &Vec<Vec<char>>, x: i32, y: i32, field_type: char, total_calculated_positions: &mut HashSet<(i32, i32)>, current_field_positions: &mut HashSet<(i32, i32)>, face_map: &mut HashMap<Face, Vec<i32>>) -> Option<Field> {
     if is_out_of_bounds(grid, x, y) {
         return Some(Field::new(0, 1, Some(true)))
@@ -142,46 +137,19 @@ fn area_and_perimeter_face_dfs(grid: &Vec<Vec<char>>, x: i32, y: i32, field_type
     current_field_positions.insert((x, y));
     let mut field = Field::new(0,0, None);
 
-    match area_and_perimeter_face_dfs(grid, x+1, y, field_type, total_calculated_positions, current_field_positions, face_map) {
-        None => {}
-        Some(next_field) => {
-            if next_field.is_edge {
-                let new_face = Face { direction: Direction::EAST, parallel_axis: x };
-                face_map.entry(new_face).or_insert(Vec::new()).push(y);
+    for (dx, dy, direction) in DIRECTIONS {
+        match area_and_perimeter_face_dfs(grid, x + dx, y + dy, field_type, total_calculated_positions, current_field_positions, face_map) {
+            None => {}
+            Some(next_field) => {
+                if next_field.is_edge {
+                    let new_face = Face { direction, parallel_axis: if dx != 0 { x } else { y } };
+                    face_map.entry(new_face).or_insert(Vec::new()).push(if dx != 0 { y } else { x });
+                }
+                field = field + next_field;
             }
-            field = field + next_field;
         }
     }
-    match area_and_perimeter_face_dfs(grid, x-1, y, field_type, total_calculated_positions, current_field_positions, face_map) {
-        None => {}
-        Some(next_field) => {
-            if next_field.is_edge {
-                let new_face = Face{direction: Direction::WEST, parallel_axis: x};
-                face_map.entry(new_face).or_insert(Vec::new()).push(y);
-            }
-            field = field + next_field;
-        }
-    }
-    match area_and_perimeter_face_dfs(grid, x, y+1, field_type, total_calculated_positions, current_field_positions, face_map) {
-        None => {}
-        Some(next_field) => {
-            if next_field.is_edge {
-                let new_face = Face { direction: Direction::SOUTH, parallel_axis: y };
-                face_map.entry(new_face).or_insert(Vec::new()).push(x);
-            }
-            field = field + next_field;
-        }
-    }
-    match area_and_perimeter_face_dfs(grid, x, y-1, field_type, total_calculated_positions, current_field_positions, face_map) {
-        None => {}
-        Some(next_field) => {
-            if next_field.is_edge {
-                let new_face = Face { direction: Direction::NORTH, parallel_axis: y };
-                face_map.entry(new_face).or_insert(Vec::new()).push(x);
-            }
-            field = field + next_field;
-        }
-    }
+
     field.area += 1;
     debug!("Position x:{}, y{}, Field: {:?}", x, y, field);
     Some(field)
@@ -189,6 +157,20 @@ fn area_and_perimeter_face_dfs(grid: &Vec<Vec<char>>, x: i32, y: i32, field_type
 
 fn is_out_of_bounds(grid: &Vec<Vec<char>>, x: i32, y: i32) -> bool {
     x < 0 || x >= grid[0].len() as i32 || y < 0 || y >= grid.len() as i32
+}
+
+fn calculate_num_sides(face_map: HashMap<Face, Vec<i32>>) -> i32 {
+    let mut num_sides = 0;
+    for (_, mut positions) in face_map {
+        positions.sort();
+        for i in 1..positions.len() {
+            if positions[i] - positions[i-1] != 1 {
+                num_sides += 1;
+            }
+        }
+        num_sides += 1;
+    }
+    num_sides
 }
 
 fn load_input() -> Vec<Vec<char>> {
