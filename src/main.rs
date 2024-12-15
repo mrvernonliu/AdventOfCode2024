@@ -68,7 +68,7 @@ fn main() {
             12 => {
                 info!("Day 12:");
                 days::day_12::part_1();
-                // days::day_12::part_2();
+                days::day_12::part_2();
             }
             _ => {}
         }
