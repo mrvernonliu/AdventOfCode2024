@@ -1,6 +1,5 @@
 use std::collections::{VecDeque};
 use std::fs;
-use std::ops::Add;
 use log::{debug, info};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -154,13 +153,13 @@ pub fn part_2() {
                 if block.length == curr_end_file.length {
                     block_list.swap(i, end_index);
                 } else {
-                    let newEmptyBlock = Block{
+                    let new_empty_block = Block{
                         block_type: BlockType::EmptyBlock,
                         id: block_list[i].id,
                         length: curr_end_file.length,
                     };
                     block_list[i].length = block_list[i].length - curr_end_file.length;
-                    block_list.insert(i, newEmptyBlock);
+                    block_list.insert(i, new_empty_block);
                     block_list.swap(i, end_index+1);
                 }
                 break;
@@ -203,7 +202,7 @@ fn get_block_string(block_list: & Vec<Block>) -> String {
     print_string
 }
 
-fn repeat_char(key: String, length: i32) -> String {
-    let id_string = &format!("{}", key);
-    std::iter::repeat(id_string.clone()).take(length as usize).collect()
-}
+// fn repeat_char(key: String, length: i32) -> String {
+//     let id_string = &format!("{}", key);
+//     std::iter::repeat(id_string.clone()).take(length as usize).collect()
+// }
