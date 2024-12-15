@@ -12,14 +12,14 @@ pub fn part_1() {
             if grid[y][x] == '0' {
                 debug!("Found a 0");
                 let mut visited_trailheads: HashSet<(i32, i32)> = HashSet::new();
-                sum += bfs(&grid, x as i32, y as i32, -1, &mut visited_trailheads);
+                sum += dfs(&grid, x as i32, y as i32, -1, &mut visited_trailheads);
             }
         }
     }
     info!("Part 1: {}", sum);
 }
 
-fn bfs(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32, visited_trailheads: &mut HashSet<(i32, i32)>) -> i32 {
+fn dfs(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32, visited_trailheads: &mut HashSet<(i32, i32)>) -> i32 {
     if is_out_of_bounds(grid, x, y) {
         debug!("Out of bounds at {}, {}", x, y);
         return 0;
@@ -41,10 +41,10 @@ fn bfs(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32, visited_trailheads:
        }
     }
     let mut count = 0;
-    count += bfs(grid, x + 1, y, grid_value, visited_trailheads);
-    count += bfs(grid, x - 1, y, grid_value, visited_trailheads);
-    count += bfs(grid, x, y + 1, grid_value, visited_trailheads);
-    count += bfs(grid, x, y - 1, grid_value, visited_trailheads);
+    count += dfs(grid, x + 1, y, grid_value, visited_trailheads);
+    count += dfs(grid, x - 1, y, grid_value, visited_trailheads);
+    count += dfs(grid, x, y + 1, grid_value, visited_trailheads);
+    count += dfs(grid, x, y - 1, grid_value, visited_trailheads);
     count
 }
 
@@ -57,14 +57,14 @@ pub fn part_2() {
         for x in 0..grid[0].len() {
             if grid[y][x] == '0' {
                 debug!("Found a 0");
-                sum += bfs_part2(&grid, x as i32, y as i32, -1);
+                sum += dfs_part2(&grid, x as i32, y as i32, -1);
             }
         }
     }
     info!("Part 2: {}", sum);
 }
 
-fn bfs_part2(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32) -> i32 {
+fn dfs_part2(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32) -> i32 {
     if is_out_of_bounds(grid, x, y) {
         debug!("Out of bounds at {}, {}", x, y);
         return 0;
@@ -81,10 +81,10 @@ fn bfs_part2(grid: &Vec<Vec<char>>, x: i32, y: i32, prev_val: i32) -> i32 {
         return 1;
     }
     let mut count = 0;
-    count += bfs_part2(grid, x + 1, y, grid_value);
-    count += bfs_part2(grid, x - 1, y, grid_value);
-    count += bfs_part2(grid, x, y + 1, grid_value);
-    count += bfs_part2(grid, x, y - 1, grid_value);
+    count += dfs_part2(grid, x + 1, y, grid_value);
+    count += dfs_part2(grid, x - 1, y, grid_value);
+    count += dfs_part2(grid, x, y + 1, grid_value);
+    count += dfs_part2(grid, x, y - 1, grid_value);
     count
 }
 
