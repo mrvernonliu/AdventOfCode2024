@@ -2,9 +2,6 @@ use std::collections::HashSet;
 use std::fs;
 use std::ops::Add;
 use log::{debug, info};
-use crate::utils::direction::Direction;
-
-const VISITED_MARKER: char = '.';
 
 #[derive(Debug)]
 struct Field {

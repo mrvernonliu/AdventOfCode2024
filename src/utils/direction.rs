@@ -18,8 +18,6 @@ impl Direction {
     pub(crate) const SOUTH_EAST: Self = Self { x: 1, y: 1 };
     pub(crate) const SOUTH_WEST: Self = Self { x: -1, y: 1 };
 
-    pub(crate) const NONE: Self = Self { x: 0, y: 0 };
-
     pub(crate) const ALL_DIRECTIONS: [Direction; 8] = [
         Direction::NORTH,
         Direction::SOUTH,
