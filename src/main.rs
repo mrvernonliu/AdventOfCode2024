@@ -70,6 +70,11 @@ fn main() {
                 days::day_12::part_1();
                 days::day_12::part_2();
             }
+            13 => {
+                info!("Day 13:");
+                days::day_13::part_1();
+                // days::day_13::part_2();
+            }
             _ => {}
         }
     }
