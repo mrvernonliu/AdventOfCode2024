@@ -9,6 +9,7 @@ dependencies = [
  "env_logger",
  "log",
  "num-bigint",
+ "num-traits",
  "regex",
 ]
 
