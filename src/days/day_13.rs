@@ -153,11 +153,11 @@ fn dfs_with_memoization(remaining: &Coordinate, machine_definition: &MachineDefi
     B = (ax*py - ay*px) / (ax*by - ay*bx)
     B = (94*5400 - 34*8400) / (94*67 - 34*22) = 40 Correct!
 
-    Now we can fill in this in to solve for A or just do in backwards.
+    Now we can fill in this in to solve for A or just do it backwards.
     A = (bx*py - by*px) / (bx*ay - by*ax)
 
-    Let's further simplify this down for implementation.
-    AorB = (x1*py - y1*px) / (x1*y2 - y1*x2) and we can just flip the order
+    Let's make this generic for implementation.
+    AorB = (x1*py - y1*px) / (x1*y2 - y1*x2) and we can just flip the order on the call.
  */
 
 pub fn part_2() {
